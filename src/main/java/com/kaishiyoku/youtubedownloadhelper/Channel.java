@@ -19,6 +19,10 @@ public class Channel {
         localPath = values[2];
     }
 
+    public String toConfigLine() {
+        return String.join(";", getDescription(), getUrl(), getLocalPath());
+    }
+
     public String getDescription() {
         return description;
     }
