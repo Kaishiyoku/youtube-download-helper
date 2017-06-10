@@ -3,6 +3,7 @@ package com.kaishiyoku.youtubedownloadhelper;
 import de.vandermeer.asciitable.AT_Context;
 import de.vandermeer.asciitable.AsciiTable;
 import de.vandermeer.asciithemes.TA_GridThemes;
+import org.pmw.tinylog.Logger;
 
 import java.io.*;
 import java.net.MalformedURLException;
@@ -55,6 +56,7 @@ public class Main {
                     break;
                 default:
                     cls();
+
                     System.out.println("Invalid option.");
             }
 
@@ -87,7 +89,7 @@ public class Main {
         try (Stream<String> lines = Files.lines(channelConfigFile.toPath())) {
             lines.filter(s -> !s.startsWith("#")).forEach(s -> channels.add(new Channel(s)));
         } catch (IOException e) {
-            e.printStackTrace();
+            Logger.error(e);
         }
     }
 
@@ -106,7 +108,7 @@ public class Main {
                 writer.close();
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            Logger.error(e);
         }
     }
 
@@ -185,7 +187,7 @@ public class Main {
         try (Stream<String> lines = Files.lines(channelConfigFile.toPath())) {
             lines.forEach(s -> channelLines.add(s));
         } catch (IOException e) {
-            e.printStackTrace();
+            Logger.error(e);
         }
 
         if (channel != null) {
@@ -199,7 +201,7 @@ public class Main {
                 writer.println(line);
             }
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            Logger.error(e);
         } finally {
             writer.close();
         }
@@ -253,11 +255,11 @@ public class Main {
 
                 pressToContinue();
             } catch (MalformedURLException e) {
-                e.printStackTrace();
+                Logger.error(e);
             } catch (FileNotFoundException e) {
-                e.printStackTrace();
+                Logger.error(e);
             } catch (IOException e) {
-                e.printStackTrace();
+                Logger.error(e);
             }
         }
     }
@@ -305,10 +307,13 @@ public class Main {
                         break;
                     }
 
-                    System.out.println(line);
+                    Logger.info(line);
                 }
+
+                System.out.println("");
+                System.out.println("");
             } catch (IOException e) {
-                e.printStackTrace();
+                Logger.error(e);
             }
         }
     }
@@ -320,7 +325,7 @@ public class Main {
         try {
             System.in.read();
         } catch (IOException e) {
-            e.printStackTrace();
+            Logger.error(e);
         }
     }
 
