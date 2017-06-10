@@ -210,14 +210,9 @@ public class Main {
         dir.mkdirs();
 
         String baseUrl = "https://yt-dl.org/downloads/latest/";
-        String fileName = "youtube-dl";
-
-        if (System.getProperty("os.name").startsWith("Windows")) {
-            fileName += ".exe";
-        }
 
         // check if file already exists
-        File youtubeDlFile = new File("third_party/" + fileName);
+        File youtubeDlFile = new File("third_party/" + getYoutubeDlFileName());
 
         long ageOfFile = new Date().getTime() - youtubeDlFile.lastModified();
 
@@ -233,10 +228,10 @@ public class Main {
             URL url;
 
             try {
-                url = new URL(baseUrl + fileName);
+                url = new URL(baseUrl + getYoutubeDlFileName());
                 URLConnection connection = url.openConnection();
                 InputStream in = connection.getInputStream();
-                FileOutputStream fos = new FileOutputStream(new File("third_party/" + fileName));
+                FileOutputStream fos = new FileOutputStream(new File("third_party/" + getYoutubeDlFileName()));
 
                 byte[] buf = new byte[512];
 
@@ -273,7 +268,49 @@ public class Main {
     }
 
     private static void startDownload() {
+        File youtubeDlFile = new File("third_party/" + getYoutubeDlFileName());
 
+        for (Channel channel : channels) {
+            Process p;
+
+            try {
+                System.out.println("Starting downloads for \"" + channel.getDescription() + "\"");
+                System.out.println("");
+
+                List<String> newParams = new ArrayList<>();
+
+                if (isWindows()) {
+                    newParams.add("cmd");
+                    newParams.add("/c");
+                }
+
+                newParams.add(youtubeDlFile.getAbsolutePath());
+                newParams.add("--yes-playlist");
+                newParams.add("--output");
+                newParams.add(channel.getLocalPath() + "/%(title)s.%(ext)s");
+                newParams.add("--ignore-errors");
+                newParams.add("--no-overwrites");
+                newParams.add(channel.getUrl());
+
+                ProcessBuilder builder = new ProcessBuilder(newParams);
+                builder.redirectErrorStream(true);
+                p = builder.start();
+                BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
+                String line;
+
+                while (true) {
+                    line = r.readLine();
+
+                    if (line == null) {
+                        break;
+                    }
+
+                    System.out.println(line);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     private static void pressToContinue() {
@@ -285,5 +322,19 @@ public class Main {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private static String getYoutubeDlFileName() {
+        String fileName = "youtube-dl";
+
+        if (isWindows()) {
+            fileName += ".exe";
+        }
+
+        return fileName;
+    }
+
+    private static boolean isWindows() {
+        return System.getProperty("os.name").startsWith("Windows");
     }
 }
