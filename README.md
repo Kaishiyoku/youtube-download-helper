@@ -3,9 +3,14 @@ Simple helper for the youtube-dl executable.
 Table of contents
 =================
 
+  * [General](#general)
   * [How to use](#how-to-use)
   * [License](#license)
   * [Author](#author)
+
+General
+=======
+I don't own any rights of youtube-dl, I just built a command-line wrapper for it so it's easier to keep track of multiple YouTube channels / playlists / whatever.
 
 How to use
 ==========
