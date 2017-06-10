@@ -10,7 +10,7 @@ Table of contents
 
 General
 =======
-I don't own any rights of youtube-dl, I just built a command-line wrapper for it so it's easier to keep track of multiple YouTube channels / playlists / whatever.
+I don't own any rights of youtube-dl (https://rg3.github.io/youtube-dl/), I just built a command-line wrapper for it so it's easier to keep track of multiple YouTube channels / playlists / whatever.
 
 How to use
 ==========
