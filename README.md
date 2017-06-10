@@ -21,7 +21,7 @@ How to use
 
 License
 =======
-MIT (https://github.com/Kaishiyoku/laravel-menu/blob/master/LICENSE)
+MIT (https://github.com/Kaishiyoku/youtube-download-helper/blob/master/LICENSE)
 
 
 Author
