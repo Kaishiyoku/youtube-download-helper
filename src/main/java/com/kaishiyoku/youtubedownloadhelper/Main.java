@@ -4,20 +4,24 @@ import de.vandermeer.asciitable.AT_Context;
 import de.vandermeer.asciitable.AsciiTable;
 import de.vandermeer.asciithemes.TA_GridThemes;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
 import java.util.stream.Stream;
 
 public class Main {
+    private final static long MAX_AGE_OF_YOUTUBE_DL_FILE_IN_DAYS = 30;
+
     private static List<Channel> channels = new ArrayList<>();
 
     public static void main(String[] args) {
+        downloadYoutubeDlIfNeeded();
         createChannelConfigIfNeeded();
 
         loadChannelConfig();
@@ -42,6 +46,10 @@ public class Main {
                     cls();
                     removeChannel();
                     break;
+                case 4:
+                    cls();
+                    startDownload();
+                    break;
                 case 0:
                     status = 0;
                     break;
@@ -57,14 +65,14 @@ public class Main {
         System.exit(0);
     }
 
-    private static int showMenuOptions()
-    {
+    private static int showMenuOptions() {
         Scanner scanner = new Scanner(System.in);
 
         System.out.println("Options:");
         System.out.println(" 1: List channels");
         System.out.println(" 2: Add channel");
         System.out.println(" 3: Remove channel");
+        System.out.println(" 4: Start download");
         System.out.println(" 0: Exit");
         System.out.println("");
 
@@ -197,8 +205,85 @@ public class Main {
         }
     }
 
+    private static void downloadYoutubeDlIfNeeded() {
+        File dir = new File("third_party");
+        dir.mkdirs();
+
+        String baseUrl = "https://yt-dl.org/downloads/latest/";
+        String fileName = "youtube-dl";
+
+        if (System.getProperty("os.name").startsWith("Windows")) {
+            fileName += ".exe";
+        }
+
+        // check if file already exists
+        File youtubeDlFile = new File("third_party/" + fileName);
+
+        long ageOfFile = new Date().getTime() - youtubeDlFile.lastModified();
+
+        boolean fileNotExistsOrIsVeryOld = !youtubeDlFile.exists();
+
+        if (!fileNotExistsOrIsVeryOld && ageOfFile > MAX_AGE_OF_YOUTUBE_DL_FILE_IN_DAYS * 24 * 60 * 60 * 1000) {
+            fileNotExistsOrIsVeryOld = true;
+        }
+
+        if (fileNotExistsOrIsVeryOld) {
+            System.out.println("Downloading youtube-dl tool from https://rg3.github.io/youtube-dl/...");
+
+            URL url;
+
+            try {
+                url = new URL(baseUrl + fileName);
+                URLConnection connection = url.openConnection();
+                InputStream in = connection.getInputStream();
+                FileOutputStream fos = new FileOutputStream(new File("third_party/" + fileName));
+
+                byte[] buf = new byte[512];
+
+                while (true) {
+                    int len = in.read(buf);
+
+                    if (len == -1) {
+                        break;
+                    }
+
+                    fos.write(buf, 0, len);
+                }
+
+                in.close();
+                fos.flush();
+                fos.close();
+
+                System.out.println("...done.");
+
+                pressToContinue();
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     private static void cls() {
         System.out.print("\033[H\033[2J");
         System.out.flush();
+    }
+
+    private static void startDownload() {
+
+    }
+
+    private static void pressToContinue() {
+        System.out.println("");
+        System.out.println("Press any key to continue");
+
+        try {
+            System.in.read();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
