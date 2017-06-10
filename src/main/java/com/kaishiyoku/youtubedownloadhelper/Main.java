@@ -115,20 +115,25 @@ public class Main {
     private static void listChannels() {
         AT_Context ctx = new AT_Context();
         ctx.setGridTheme(TA_GridThemes.FULL);
+        ctx.setWidth(95);
 
         AsciiTable at = new AsciiTable(ctx);
         at.addRule();
-        at.addRow("#", "DESCRIPTION", "URL", "LOCAL PATH");
+        at.addRow("# | DESCRIPTION", "URL", "LOCAL PATH");
         at.addRule();
 
         if (channels.size() == 0) {
-            at.addRow(null, null, null, "no channels yet");
+            at.addRow(null, null, "no channels yet");
         }
 
         int i = 1;
 
         for (Channel channel : channels) {
-            at.addRow(i, channel.getDescription(), channel.getUrl(), channel.getLocalPath());
+            at.addRow(i + " | " + channel.getDescription(), channel.getUrl(), channel.getLocalPath());
+
+            if (i < channels.size()) {
+                at.addRule();
+            }
 
             i++;
         }
