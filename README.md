@@ -6,6 +6,7 @@ Table of contents
   * [General](#general)
   * [What it does](#what-it-does)
   * [How to use](#how-to-use)
+  * [Contribute](#contribute)
   * [License](#license)
   * [Author](#author)
 
@@ -33,10 +34,13 @@ How to use
 3. navigate to jar file
 4. execute ```java -jar <NAME_OF_JAR_FILE>```
 
+Contribute
+==========
+If you like to contribute or find any bugs feel free to send me a message or open an issue here on GitHub.
+
 License
 =======
 MIT (https://github.com/Kaishiyoku/youtube-download-helper/blob/master/LICENSE)
-
 
 Author
 ======
