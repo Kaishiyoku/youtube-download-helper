@@ -5,6 +5,7 @@ import com.kaishiyoku.youtubedownloadhelper.models.Channel;
 import de.vandermeer.asciitable.AT_Context;
 import de.vandermeer.asciitable.AsciiTable;
 import de.vandermeer.asciithemes.TA_GridThemes;
+import de.vandermeer.skb.interfaces.transformers.textformat.TextAlignment;
 import org.pmw.tinylog.Logger;
 
 import java.io.*;
@@ -76,7 +77,10 @@ public class Main {
     private static int showMenuOptions() {
         Scanner scanner = new Scanner(System.in);
 
-        AsciiTable at = new AsciiTable();
+        AT_Context ctx = new AT_Context();
+        ctx.setGridTheme(TA_GridThemes.INSIDE_HORIZONTAL);
+        ctx.setWidth(30);
+        AsciiTable at = new AsciiTable(ctx);
         at.addRule();
         at.addRow("Options:");
         at.addRule();
@@ -141,6 +145,7 @@ public class Main {
         ctx.setWidth(95);
 
         AsciiTable at = new AsciiTable(ctx);
+        at.setTextAlignment(TextAlignment.LEFT);
         at.addRule();
         at.addRow("# | DESCRIPTION", "URL", "LOCAL PATH");
         at.addRule();
@@ -170,13 +175,13 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
 
         ConsoleHelper.print("Description: ");
-        String description = scanner.next();
+        String description = scanner.nextLine();
 
         ConsoleHelper.print("URL: ");
-        String url = scanner.next();
+        String url = scanner.nextLine();
 
         ConsoleHelper.print("Local path: ");
-        String localPath = scanner.next();
+        String localPath = scanner.nextLine();
 
         Channel channel = new Channel(description, url, localPath);
 
