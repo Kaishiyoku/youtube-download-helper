@@ -8,6 +8,7 @@ Table of contents
     * [What it does](#what-it-does)
     * [How to use](#how-to-use)
     * [Contribute](#contribute)
+    * [Build with Maven](#build-with-maven)
   * [License](#license)
   * [Author](#author)
 
@@ -41,6 +42,10 @@ How to use
 Contribute
 ----------
 If you like to contribute or find any bugs feel free to send me a message or open an issue here on GitHub.
+
+Build with Maven
+----------------
+To run the build use ```clean package```.
 
 License
 =======
