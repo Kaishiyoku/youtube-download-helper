@@ -1,4 +1,4 @@
-package com.kaishiyoku.youtubedownloadhelper;
+package com.kaishiyoku.youtubedownloadhelper.models;
 
 public class Channel {
     private String description;

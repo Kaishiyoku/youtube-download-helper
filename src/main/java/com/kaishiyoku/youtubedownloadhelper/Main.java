@@ -1,5 +1,7 @@
 package com.kaishiyoku.youtubedownloadhelper;
 
+import com.kaishiyoku.youtubedownloadhelper.helper.ConsoleHelper;
+import com.kaishiyoku.youtubedownloadhelper.models.Channel;
 import de.vandermeer.asciitable.AT_Context;
 import de.vandermeer.asciitable.AsciiTable;
 import de.vandermeer.asciithemes.TA_GridThemes;
@@ -10,16 +12,20 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 import java.util.stream.Stream;
 
 public class Main {
     private final static long MAX_AGE_OF_YOUTUBE_DL_FILE_IN_DAYS = 30;
 
     private static List<Channel> channels = new ArrayList<>();
+    private static Map<Integer, String> options = new LinkedHashMap<Integer, String>() {{
+        put(1, "List channels");
+        put(2, "Add channel");
+        put(3, "Remove channel");
+        put(4, "Start download");
+        put(0, "Exit");
+    }};
 
     public static void main(String[] args) {
         downloadYoutubeDlIfNeeded();
@@ -27,7 +33,7 @@ public class Main {
 
         loadChannelConfig();
 
-        cls();
+        ConsoleHelper.cls();
 
         int status = 1;
 
@@ -36,32 +42,32 @@ public class Main {
 
             switch (option) {
                 case 1:
-                    cls();
+                    ConsoleHelper.cls();
                     listChannels();
                     break;
                 case 2:
-                    cls();
+                    ConsoleHelper.cls();
                     addChannel();
                     break;
                 case 3:
-                    cls();
+                    ConsoleHelper.cls();
                     removeChannel();
                     break;
                 case 4:
-                    cls();
+                    ConsoleHelper.cls();
                     startDownload();
                     break;
                 case 0:
                     status = 0;
                     break;
                 default:
-                    cls();
+                    ConsoleHelper.cls();
 
-                    System.out.println("Invalid option.");
+                    ConsoleHelper.println("Invalid option.");
             }
 
-            System.out.println("");
-            System.out.println("");
+            ConsoleHelper.println();
+            ConsoleHelper.println();
         }
 
         System.exit(0);
@@ -70,13 +76,22 @@ public class Main {
     private static int showMenuOptions() {
         Scanner scanner = new Scanner(System.in);
 
-        System.out.println("Options:");
-        System.out.println(" 1: List channels");
-        System.out.println(" 2: Add channel");
-        System.out.println(" 3: Remove channel");
-        System.out.println(" 4: Start download");
-        System.out.println(" 0: Exit");
-        System.out.println("");
+        AsciiTable at = new AsciiTable();
+        at.addRule();
+        at.addRow("Options:");
+        at.addRule();
+
+        for (Map.Entry<Integer, String> option : options.entrySet()) {
+            at.addRow(option.getKey() + ": " + option.getValue());
+        }
+
+        at.addRule();
+
+        ConsoleHelper.render(at.render());
+
+        ConsoleHelper.println();
+
+        ConsoleHelper.print("> ");
 
         int option = scanner.nextInt();
 
@@ -148,25 +163,27 @@ public class Main {
 
         at.addRule();
 
-        System.out.println(at.render());
+        ConsoleHelper.render(at.render());
     }
 
     private static void addChannel() {
         Scanner scanner = new Scanner(System.in);
 
-        System.out.print("Description: ");
+        ConsoleHelper.print("Description: ");
         String description = scanner.next();
 
-        System.out.print("URL: ");
+        ConsoleHelper.print("URL: ");
         String url = scanner.next();
 
-        System.out.print("Local path: ");
+        ConsoleHelper.print("Local path: ");
         String localPath = scanner.next();
 
         Channel channel = new Channel(description, url, localPath);
 
         channels.add(channel);
         saveChannels(channel);
+
+        ConsoleHelper.println("Channel added.");
     }
 
     private static void removeChannel() {
@@ -174,7 +191,7 @@ public class Main {
 
         Scanner scanner = new Scanner(System.in);
 
-        System.out.print("Remove channel #: ");
+        ConsoleHelper.print("Remove channel #: ");
 
         int channelNumber = scanner.nextInt();
 
@@ -182,7 +199,7 @@ public class Main {
 
         saveChannels();
 
-        System.out.println("Channel removed");
+        ConsoleHelper.println("Channel removed.");
         listChannels();
     }
 
@@ -198,7 +215,7 @@ public class Main {
         List<String> channelLines = new ArrayList<>();
 
         try (Stream<String> lines = Files.lines(channelConfigFile.toPath())) {
-            lines.forEach(s -> channelLines.add(s));
+            lines.forEach(channelLines::add);
         } catch (IOException e) {
             Logger.error(e);
         }
@@ -238,7 +255,7 @@ public class Main {
         }
 
         if (fileNotExistsOrIsVeryOld) {
-            System.out.println("Downloading youtube-dl tool from https://rg3.github.io/youtube-dl/...");
+            ConsoleHelper.println("Downloading youtube-dl tool from https://rg3.github.io/youtube-dl/...");
 
             URL url;
 
@@ -264,9 +281,9 @@ public class Main {
                 fos.flush();
                 fos.close();
 
-                System.out.println("...done.");
+                ConsoleHelper.println("...done.");
 
-                pressToContinue();
+                ConsoleHelper.pressToContinue();
             } catch (MalformedURLException e) {
                 Logger.error(e);
             } catch (FileNotFoundException e) {
@@ -277,11 +294,6 @@ public class Main {
         }
     }
 
-    private static void cls() {
-        System.out.print("\033[H\033[2J");
-        System.out.flush();
-    }
-
     private static void startDownload() {
         File youtubeDlFile = new File("third_party/" + getYoutubeDlFileName());
 
@@ -289,12 +301,12 @@ public class Main {
             Process p;
 
             try {
-                System.out.println("Starting downloads for \"" + channel.getDescription() + "\"");
-                System.out.println("");
+                ConsoleHelper.println("Starting downloads for \"" + channel.getDescription() + "\".");
+                ConsoleHelper.println();
 
                 List<String> newParams = new ArrayList<>();
 
-                if (isWindows()) {
+                if (ConsoleHelper.isWindows()) {
                     newParams.add("cmd");
                     newParams.add("/c");
                 }
@@ -323,36 +335,21 @@ public class Main {
                     Logger.info(line);
                 }
 
-                System.out.println("");
-                System.out.println("");
+                ConsoleHelper.println();
+                ConsoleHelper.println();
             } catch (IOException e) {
                 Logger.error(e);
             }
         }
     }
 
-    private static void pressToContinue() {
-        System.out.println("");
-        System.out.println("Press any key to continue");
-
-        try {
-            System.in.read();
-        } catch (IOException e) {
-            Logger.error(e);
-        }
-    }
-
     private static String getYoutubeDlFileName() {
         String fileName = "youtube-dl";
 
-        if (isWindows()) {
+        if (ConsoleHelper.isWindows()) {
             fileName += ".exe";
         }
 
         return fileName;
-    }
-
-    private static boolean isWindows() {
-        return System.getProperty("os.name").startsWith("Windows");
     }
 }
