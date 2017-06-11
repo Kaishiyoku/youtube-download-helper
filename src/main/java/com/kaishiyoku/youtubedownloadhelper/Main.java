@@ -84,10 +84,18 @@ public class Main {
     }
 
     private static void loadChannelConfig() {
-        File channelConfigFile = new File("config/channels.txt");
+        try {
+            File channelConfigFile = new File("config/channels.txt");
+            BufferedReader reader = new BufferedReader(new FileReader(channelConfigFile));
+            String line;
 
-        try (Stream<String> lines = Files.lines(channelConfigFile.toPath())) {
-            lines.filter(s -> !s.startsWith("#")).forEach(s -> channels.add(new Channel(s)));
+            while ((line = reader.readLine()) != null) {
+                if (!line.startsWith("#")) {
+                    channels.add(new Channel(line));
+                }
+            }
+        } catch (FileNotFoundException e) {
+            Logger.error(e);
         } catch (IOException e) {
             Logger.error(e);
         }
