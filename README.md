@@ -42,6 +42,10 @@ Contribute
 ----------
 If you like to contribute or find any bugs feel free to send me a message or open an issue here on GitHub.
 
+Build with Maven
+----------------
+To run the build use ```clean package appassembler:assemble```.
+
 License
 =======
 MIT (https://github.com/Kaishiyoku/youtube-download-helper/blob/master/LICENSE)
