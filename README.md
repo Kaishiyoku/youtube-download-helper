@@ -45,7 +45,7 @@ If you like to contribute or find any bugs feel free to send me a message or ope
 
 Build with Maven
 ----------------
-To run the build use ```clean package appassembler:assemble```.
+To run the build use ```clean package```.
 
 License
 =======
