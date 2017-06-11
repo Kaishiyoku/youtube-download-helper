@@ -55,6 +55,19 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>appassembler-maven-plugin</artifactId>
+                <configuration>
+                    <assembleDirectory>${project.build.directory}</assembleDirectory>
+                    <programs>
+                        <program>
+                            <mainClass>com.kaishiyoku.youtubedownloadhelper.Main</mainClass>
+                            <name>start</name>
+                        </program>
+                    </programs>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 </project>
