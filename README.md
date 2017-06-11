@@ -8,6 +8,7 @@ Table of contents
     * [What it does](#what-it-does)
     * [How to use](#how-to-use)
     * [Contribute](#contribute)
+    * [Build with Maven](#build-with-maven)
   * [License](#license)
   * [Author](#author)
 
