@@ -7,6 +7,7 @@ Table of contents
   * [About](#about)
     * [What it does](#what-it-does)
     * [How to use](#how-to-use)
+    * [Screenshots](#screenshots)
     * [Contribute](#contribute)
     * [Build with Maven](#build-with-maven)
   * [License](#license)
@@ -38,6 +39,12 @@ How to use
 2. open command line
 3. navigate to jar file
 4. execute ```java -jar <NAME_OF_JAR_FILE>```
+
+Screenshots
+-----------
+![Main menu](https://raw.githubusercontent.com/Kaishiyoku/youtube-download-helper/screenshots/main_menu.png "Main menu")
+
+![List](https://raw.githubusercontent.com/Kaishiyoku/youtube-download-helper/screenshots/list.png "List")
 
 Contribute
 ----------
