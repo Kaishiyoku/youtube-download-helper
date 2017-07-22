@@ -25,6 +25,8 @@ public class Main {
         put(2, "Add channel");
         put(3, "Remove channel");
         put(4, "Start download");
+        put(5, "Download single channel");
+        put(-1, "");
         put(0, "Exit");
     }};
 
@@ -82,7 +84,11 @@ public class Main {
         at.addRule();
 
         for (Map.Entry<Integer, String> option : options.entrySet()) {
-            at.addRow(option.getKey() + ": " + option.getValue());
+            if (option.getKey() == -1) {
+                at.addRow(option.getValue());
+            } else {
+                at.addRow(option.getKey() + ": " + option.getValue());
+            }
         }
 
         at.addRule();
