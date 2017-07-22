@@ -46,27 +46,31 @@ public class Main {
 
             cls();
 
-            switch (option) {
-                case 1:
-                    listChannels();
-                    break;
-                case 2:
-                    addChannel();
-                    break;
-                case 3:
-                    removeChannel();
-                    break;
-                case 4:
-                    startDownload();
-                    break;
-                case 5:
-                    startDownloadSingle();
-                    break;
-                case 0:
-                    status = 0;
-                    break;
-                default:
-                    println("Invalid option.");
+            try {
+                switch (option) {
+                    case 1:
+                        listChannels();
+                        break;
+                    case 2:
+                        addChannel();
+                        break;
+                    case 3:
+                        removeChannel();
+                        break;
+                    case 4:
+                        startDownload();
+                        break;
+                    case 5:
+                        startDownloadSingle();
+                        break;
+                    case 0:
+                        status = 0;
+                        break;
+                    default:
+                        println("Invalid option.");
+                }
+            } catch (Exception e) {
+                Logger.error(e);
             }
 
             println();
@@ -316,9 +320,13 @@ public class Main {
 
         int channelNumber = scanner.nextInt();
 
-        downloadChannel(channels.get(channelNumber), getYoutubeDlFile());
+        try {
+            println();
 
-        // TODO: finished log
+            downloadChannel(channels.get(channelNumber - 1), getYoutubeDlFile());
+        } catch (IndexOutOfBoundsException e) {
+            println("Invalid channel #.");
+        }
     }
 
     private static File getYoutubeDlFile() {
