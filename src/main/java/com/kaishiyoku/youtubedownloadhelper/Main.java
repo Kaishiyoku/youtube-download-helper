@@ -1,6 +1,5 @@
 package com.kaishiyoku.youtubedownloadhelper;
 
-import com.kaishiyoku.youtubedownloadhelper.helper.ConsoleHelper;
 import com.kaishiyoku.youtubedownloadhelper.models.Channel;
 import de.vandermeer.asciitable.AT_Context;
 import de.vandermeer.asciitable.AsciiTable;
@@ -15,6 +14,8 @@ import java.net.URLConnection;
 import java.nio.file.Files;
 import java.util.*;
 import java.util.stream.Stream;
+
+import static com.kaishiyoku.youtubedownloadhelper.helper.ConsoleHelper.*;
 
 public class Main {
     private final static long MAX_AGE_OF_YOUTUBE_DL_FILE_IN_DAYS = 30;
@@ -36,14 +37,14 @@ public class Main {
 
         loadChannelConfig();
 
-        ConsoleHelper.cls();
+        cls();
 
         int status = 1;
 
         while (status == 1) {
             int option = showMenuOptions();
 
-            ConsoleHelper.cls();
+            cls();
 
             switch (option) {
                 case 1:
@@ -58,15 +59,18 @@ public class Main {
                 case 4:
                     startDownload();
                     break;
+                case 5:
+                    startDownloadSingle();
+                    break;
                 case 0:
                     status = 0;
                     break;
                 default:
-                    ConsoleHelper.println("Invalid option.");
+                    println("Invalid option.");
             }
 
-            ConsoleHelper.println();
-            ConsoleHelper.println();
+            println();
+            println();
         }
 
         System.exit(0);
@@ -93,11 +97,11 @@ public class Main {
 
         at.addRule();
 
-        ConsoleHelper.render(at.render());
+        render(at.render());
 
-        ConsoleHelper.println();
+        println();
 
-        ConsoleHelper.print("> ");
+        print("> ");
 
         int option = scanner.nextInt();
 
@@ -170,19 +174,19 @@ public class Main {
 
         at.addRule();
 
-        ConsoleHelper.render(at.render());
+        render(at.render());
     }
 
     private static void addChannel() {
         Scanner scanner = new Scanner(System.in);
 
-        ConsoleHelper.print("Description: ");
+        print("Description: ");
         String description = scanner.nextLine();
 
-        ConsoleHelper.print("URL: ");
+        print("URL: ");
         String url = scanner.nextLine();
 
-        ConsoleHelper.print("Local path: ");
+        print("Local path: ");
         String localPath = scanner.nextLine();
 
         Channel channel = new Channel(description, url, localPath);
@@ -190,7 +194,7 @@ public class Main {
         channels.add(channel);
         saveChannels(channel);
 
-        ConsoleHelper.println("Channel added.");
+        println("Channel added.");
     }
 
     private static void removeChannel() {
@@ -198,7 +202,7 @@ public class Main {
 
         Scanner scanner = new Scanner(System.in);
 
-        ConsoleHelper.print("Remove channel #: ");
+        print("Remove channel #: ");
 
         int channelNumber = scanner.nextInt();
 
@@ -206,7 +210,7 @@ public class Main {
 
         saveChannels();
 
-        ConsoleHelper.println("Channel removed.");
+        println("Channel removed.");
         listChannels();
     }
 
@@ -262,7 +266,7 @@ public class Main {
         }
 
         if (fileNotExistsOrIsVeryOld) {
-            ConsoleHelper.println("Downloading youtube-dl tool from https://rg3.github.io/youtube-dl/...");
+            println("Downloading youtube-dl tool from https://rg3.github.io/youtube-dl/...");
 
             URL url;
 
@@ -288,9 +292,9 @@ public class Main {
                 fos.flush();
                 fos.close();
 
-                ConsoleHelper.println("...done.");
+                println("...done.");
 
-                ConsoleHelper.pressToContinue();
+                pressToContinue();
             } catch (MalformedURLException e) {
                 Logger.error(e);
             } catch (FileNotFoundException e) {
@@ -301,59 +305,83 @@ public class Main {
         }
     }
 
+    private static void startDownloadSingle() {
+        listChannels();
+
+        Scanner scanner = new Scanner(System.in);
+
+        println("Select the channel # to be downloaded.");
+
+        print("> ");
+
+        int channelNumber = scanner.nextInt();
+
+        downloadChannel(channels.get(channelNumber), getYoutubeDlFile());
+
+        // TODO: finished log
+    }
+
+    private static File getYoutubeDlFile() {
+        return new File("third_party/" + getYoutubeDlFileName());
+    }
+
     private static void startDownload() {
-        File youtubeDlFile = new File("third_party/" + getYoutubeDlFileName());
+        File youtubeDlFile = getYoutubeDlFile();
 
         for (Channel channel : channels) {
-            Process p;
+            downloadChannel(channel, youtubeDlFile);
+        }
+    }
 
-            try {
-                ConsoleHelper.println("Starting downloads for \"" + channel.getDescription() + "\".");
-                ConsoleHelper.println();
+    private static void downloadChannel(Channel channel, File youtubeDlFile) {
+        Process p;
 
-                List<String> newParams = new ArrayList<>();
+        try {
+            println("Starting downloads for \"" + channel.getDescription() + "\".");
+            println();
 
-                if (ConsoleHelper.isWindows()) {
-                    newParams.add("cmd");
-                    newParams.add("/c");
-                }
+            List<String> newParams = new ArrayList<>();
 
-                newParams.add(youtubeDlFile.getAbsolutePath());
-                newParams.add("--yes-playlist");
-                newParams.add("--output");
-                newParams.add(channel.getLocalPath() + "/%(title)s.%(ext)s");
-                newParams.add("--ignore-errors");
-                newParams.add("--no-overwrites");
-                newParams.add(channel.getUrl());
-
-                ProcessBuilder builder = new ProcessBuilder(newParams);
-                builder.redirectErrorStream(true);
-                p = builder.start();
-                BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
-                String line;
-
-                while (true) {
-                    line = r.readLine();
-
-                    if (line == null) {
-                        break;
-                    }
-
-                    Logger.info(line);
-                }
-
-                ConsoleHelper.println();
-                ConsoleHelper.println();
-            } catch (IOException e) {
-                Logger.error(e);
+            if (isWindows()) {
+                newParams.add("cmd");
+                newParams.add("/c");
             }
+
+            newParams.add(youtubeDlFile.getAbsolutePath());
+            newParams.add("--yes-playlist");
+            newParams.add("--output");
+            newParams.add(channel.getLocalPath() + "/%(title)s.%(ext)s");
+            newParams.add("--ignore-errors");
+            newParams.add("--no-overwrites");
+            newParams.add(channel.getUrl());
+
+            ProcessBuilder builder = new ProcessBuilder(newParams);
+            builder.redirectErrorStream(true);
+            p = builder.start();
+            BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
+            String line;
+
+            while (true) {
+                line = r.readLine();
+
+                if (line == null) {
+                    break;
+                }
+
+                Logger.info(line);
+            }
+
+            println();
+            println();
+        } catch (IOException e) {
+            Logger.error(e);
         }
     }
 
     private static String getYoutubeDlFileName() {
         String fileName = "youtube-dl";
 
-        if (ConsoleHelper.isWindows()) {
+        if (isWindows()) {
             fileName += ".exe";
         }
 
