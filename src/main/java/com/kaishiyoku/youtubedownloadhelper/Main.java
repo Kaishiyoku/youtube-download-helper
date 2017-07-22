@@ -41,29 +41,25 @@ public class Main {
         while (status == 1) {
             int option = showMenuOptions();
 
+            ConsoleHelper.cls();
+
             switch (option) {
                 case 1:
-                    ConsoleHelper.cls();
                     listChannels();
                     break;
                 case 2:
-                    ConsoleHelper.cls();
                     addChannel();
                     break;
                 case 3:
-                    ConsoleHelper.cls();
                     removeChannel();
                     break;
                 case 4:
-                    ConsoleHelper.cls();
                     startDownload();
                     break;
                 case 0:
                     status = 0;
                     break;
                 default:
-                    ConsoleHelper.cls();
-
                     ConsoleHelper.println("Invalid option.");
             }
 
