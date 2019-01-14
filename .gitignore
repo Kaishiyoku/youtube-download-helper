@@ -1,4 +1,6 @@
 /.idea
+/config
+/third_party
 *.iml
 target/
 pom.xml.tag
