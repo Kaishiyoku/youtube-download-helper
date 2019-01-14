@@ -8,12 +8,9 @@ import de.vandermeer.skb.interfaces.transformers.textformat.TextAlignment;
 import org.pmw.tinylog.Logger;
 
 import java.io.*;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.nio.file.Files;
 import java.util.*;
-import java.util.stream.Stream;
 
 import static com.kaishiyoku.youtubedownloadhelper.helper.ConsoleHelper.*;
 
@@ -22,11 +19,8 @@ public class Main {
 
     private static List<Channel> channels = new ArrayList<>();
     private static Map<Integer, String> options = new LinkedHashMap<Integer, String>() {{
-        put(1, "List channels");
-        put(2, "Add channel");
-        put(3, "Remove channel");
-        put(4, "Start download");
-        put(5, "Download single channel");
+        put(1, "Start download");
+        put(2, "Download single channel");
         put(-1, "");
         put(0, "Exit");
     }};
@@ -49,18 +43,9 @@ public class Main {
             try {
                 switch (option) {
                     case 1:
-                        listChannels();
-                        break;
-                    case 2:
-                        addChannel();
-                        break;
-                    case 3:
-                        removeChannel();
-                        break;
-                    case 4:
                         startDownload();
                         break;
-                    case 5:
+                    case 2:
                         startDownloadSingle();
                         break;
                     case 0:
@@ -112,43 +97,6 @@ public class Main {
         return option;
     }
 
-    private static void loadChannelConfig() {
-        try {
-            File channelConfigFile = new File("config/channels.txt");
-            BufferedReader reader = new BufferedReader(new FileReader(channelConfigFile));
-            String line;
-
-            while ((line = reader.readLine()) != null) {
-                if (!line.startsWith("#")) {
-                    channels.add(new Channel(line));
-                }
-            }
-        } catch (FileNotFoundException e) {
-            Logger.error(e);
-        } catch (IOException e) {
-            Logger.error(e);
-        }
-    }
-
-    private static void createChannelConfigIfNeeded() {
-        File dir = new File("config");
-        dir.mkdirs();
-
-        try {
-            File channelConfigFile = new File("config/channels.txt");
-
-            if (!channelConfigFile.exists()) {
-                PrintWriter writer = new PrintWriter(channelConfigFile, "UTF-8");
-                writer.println("# Enter here the YouTube channels you want to download in the following format, one channel per row:");
-                writer.println("# The description field is for visibility only and will not be used by the downloader.");
-                writer.println("# <DESCRIPTION>;<URL>;<LOCAL_PATH>");
-                writer.close();
-            }
-        } catch (IOException e) {
-            Logger.error(e);
-        }
-    }
-
     private static void listChannels() {
         AT_Context ctx = new AT_Context();
         ctx.setGridTheme(TA_GridThemes.FULL);
@@ -181,74 +129,38 @@ public class Main {
         render(at.render());
     }
 
-    private static void addChannel() {
-        Scanner scanner = new Scanner(System.in);
+    private static void loadChannelConfig() {
+        try {
+            File channelConfigFile = new File("config/channels.txt");
+            BufferedReader reader = new BufferedReader(new FileReader(channelConfigFile));
+            String line;
 
-        print("Description: ");
-        String description = scanner.nextLine();
-
-        print("URL: ");
-        String url = scanner.nextLine();
-
-        print("Local path: ");
-        String localPath = scanner.nextLine();
-
-        Channel channel = new Channel(description, url, localPath);
-
-        channels.add(channel);
-        saveChannels(channel);
-
-        println("Channel added.");
-    }
-
-    private static void removeChannel() {
-        listChannels();
-
-        Scanner scanner = new Scanner(System.in);
-
-        print("Remove channel #: ");
-
-        int channelNumber = scanner.nextInt();
-
-        channels.remove(channelNumber - 1);
-
-        saveChannels();
-
-        println("Channel removed.");
-        listChannels();
-    }
-
-    private static void saveChannels() {
-        saveChannels(null);
-    }
-
-    private static void saveChannels(Channel channel) {
-        // save to file
-        File channelConfigFile = new File("config/channels.txt");
-        PrintWriter writer = null;
-
-        List<String> channelLines = new ArrayList<>();
-
-        try (Stream<String> lines = Files.lines(channelConfigFile.toPath())) {
-            lines.forEach(channelLines::add);
+            while ((line = reader.readLine()) != null) {
+                if (!line.startsWith("#")) {
+                    channels.add(new Channel(line));
+                }
+            }
         } catch (IOException e) {
             Logger.error(e);
         }
+    }
 
-        if (channel != null) {
-            channelLines.add(channel.toConfigLine());
-        }
+    private static void createChannelConfigIfNeeded() {
+        File dir = new File("config");
+        dir.mkdirs();
 
         try {
-            writer = new PrintWriter(channelConfigFile);
+            File channelConfigFile = new File("config/channels.txt");
 
-            for (String line : channelLines) {
-                writer.println(line);
+            if (!channelConfigFile.exists()) {
+                PrintWriter writer = new PrintWriter(channelConfigFile, "UTF-8");
+                writer.println("# Enter here the YouTube channels you want to download in the following format, one channel per row:");
+                writer.println("# The description field is for visibility only and will not be used by the downloader.");
+                writer.println("# <DESCRIPTION>;<URL>;<LOCAL_PATH>");
+                writer.close();
             }
-        } catch (FileNotFoundException e) {
+        } catch (IOException e) {
             Logger.error(e);
-        } finally {
-            writer.close();
         }
     }
 
@@ -299,10 +211,6 @@ public class Main {
                 println("...done.");
 
                 pressToContinue();
-            } catch (MalformedURLException e) {
-                Logger.error(e);
-            } catch (FileNotFoundException e) {
-                Logger.error(e);
             } catch (IOException e) {
                 Logger.error(e);
             }
