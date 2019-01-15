@@ -32,7 +32,6 @@ fun exit(channels: ArrayList<Channel>, youtubeDlFile: File) {
 
 fun main(args: Array<String>) {
     val maxAgeOfYoutubeDlFileInDays = 30
-    val sum: (Int, Int) -> Int = { x, y -> x + y }
 
     val options = listOf(
             Option(1, "Start download", ::startDownload),
@@ -78,18 +77,11 @@ fun downloadYoutubeDlIfNeeded(maxAge: Int) {
     val baseUrl = "https://yt-dl.org/downloads/latest/"
 
     // check if file already exists
-    val youtubeDlFile = File("third_party/${getYoutubeDlFileName()}")
-
+    val youtubeDlFile = getYoutubeDlFile()
     val ageOfFile = Date().time - youtubeDlFile.lastModified()
 
-    var fileNotExistsOrIsVeryOld = !youtubeDlFile.exists()
-
-    if (!fileNotExistsOrIsVeryOld && ageOfFile > maxAge * 24 * 60 * 60 * 1000) {
-        fileNotExistsOrIsVeryOld = true
-    }
-
-    if (fileNotExistsOrIsVeryOld) {
-        println("Downloading youtube-dl tool from https://rg3.github.io/youtube-dl/...")
+    if (!youtubeDlFile.exists() || ageOfFile > maxAge * 24 * 60 * 60 * 1000) {
+        println("Downloading youtube-dl tool from https://rg3.github.io/youtube-dl/ ...")
 
         val url: URL
 
