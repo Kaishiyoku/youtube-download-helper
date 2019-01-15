@@ -2,7 +2,7 @@ package com.kaishiyoku.youtubedownloadhelper
 
 import com.kaishiyoku.youtubedownloadhelper.helper.ConsoleHelper.cls
 import com.kaishiyoku.youtubedownloadhelper.helper.ConsoleHelper.isWindows
-import com.kaishiyoku.youtubedownloadhelper.helper.ConsoleHelper.pressToContinue
+import com.kaishiyoku.youtubedownloadhelper.helper.ConsoleHelper.printPressToContinue
 import com.kaishiyoku.youtubedownloadhelper.models.Channel
 import de.vandermeer.asciitable.AT_Context
 import de.vandermeer.asciitable.AsciiTable
@@ -106,7 +106,7 @@ fun downloadYoutubeDlIfNeeded(youtubeDlFileName: String, maxAge: Int) {
 
             println("...done.")
 
-            pressToContinue()
+            printPressToContinue()
         } catch (e: IOException) {
             Logger.error(e)
         }
