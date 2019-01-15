@@ -144,7 +144,7 @@ private fun loadChannelConfig(channels: ArrayList<Channel>) {
             val line = iterator.next();
 
             if (!line.startsWith("#")) {
-                channels.add(Channel(line))
+                channels.add(Channel.fromConfigLine(line))
             }
         }
     } catch (e: IOException) {
