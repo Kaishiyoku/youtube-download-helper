@@ -3,7 +3,10 @@ package com.kaishiyoku.youtubedownloadhelper
 import com.kaishiyoku.youtubedownloadhelper.helper.ConsoleHelper.cls
 import com.kaishiyoku.youtubedownloadhelper.helper.ConsoleHelper.isWindows
 import com.kaishiyoku.youtubedownloadhelper.helper.ConsoleHelper.printPressToContinue
+import com.kaishiyoku.youtubedownloadhelper.models.BaseOption
 import com.kaishiyoku.youtubedownloadhelper.models.Channel
+import com.kaishiyoku.youtubedownloadhelper.models.Option
+import com.kaishiyoku.youtubedownloadhelper.models.OptionSpacer
 import de.vandermeer.asciitable.AT_Context
 import de.vandermeer.asciitable.AsciiTable
 import de.vandermeer.asciithemes.TA_GridThemes
@@ -13,61 +16,69 @@ import java.io.*
 import java.net.URL
 import java.util.*
 
+var status = 1
+
+fun getYoutubeDlFileName(): String {
+    return "youtube-dl${if (isWindows()) ".exe" else ""}"
+}
+
+fun getYoutubeDlFile(): File {
+    return File("third_party/${getYoutubeDlFileName()}")
+}
+
+fun exit(channels: ArrayList<Channel>, youtubeDlFile: File) {
+    status = 0
+}
+
 fun main(args: Array<String>) {
     val maxAgeOfYoutubeDlFileInDays = 30
-    val channels = ArrayList<Channel>()
-    val options = object : LinkedHashMap<Int, String>() {
-        init {
-            put(1, "Start download")
-            put(2, "Download single chanel")
-            put(-1, "")
-            put(0, "Exit")
-        }
-    }
-    val youtubeDlFileName = "youtube-dl${if (isWindows()) ".exe" else ""}"
-    val youtubeDlFile = File("third_party/$youtubeDlFileName")
+    val sum: (Int, Int) -> Int = { x, y -> x + y }
 
-    downloadYoutubeDlIfNeeded(youtubeDlFileName, maxAgeOfYoutubeDlFileInDays)
+    val options = listOf(
+            Option(1, "Start download", ::startDownload),
+            Option(2, "Download single channel", ::startDownloadSingle),
+            OptionSpacer(),
+            Option(0, "Exit", ::exit)
+    )
+
+    downloadYoutubeDlIfNeeded(maxAgeOfYoutubeDlFileInDays)
     createChannelConfigIfNeeded()
-
-    loadChannelConfig(channels)
 
     cls()
 
-    var status = 1
-
     try {
         while (status == 1) {
-            val option = showMenuOptions(options)
+            val inputValue = showMenuOptions(options)
 
             cls()
 
-            when (option) {
-                1 -> startDownload(channels, youtubeDlFile)
-                2 -> startDownloadSingle(channels, youtubeDlFile)
-                0 -> status = 0
-                else -> println("Invalid option.")
+            val foundOption: Option? = options.filterIsInstance<Option>().firstOrNull { it.inputValue == inputValue }
+
+            if (foundOption == null) {
+                println("Invalid option.")
+            } else {
+                foundOption.actionFn(loadChannelConfig(), getYoutubeDlFile())
             }
 
             println()
             println()
-
-            System.exit(0)
         }
+
+        System.exit(0)
 
     } catch (e: IOException) {
         Logger.error(e)
     }
 }
 
-fun downloadYoutubeDlIfNeeded(youtubeDlFileName: String, maxAge: Int) {
+fun downloadYoutubeDlIfNeeded(maxAge: Int) {
     val dir = File("third_party")
     dir.mkdirs()
 
     val baseUrl = "https://yt-dl.org/downloads/latest/"
 
     // check if file already exists
-    val youtubeDlFile = File("third_party/$youtubeDlFileName")
+    val youtubeDlFile = File("third_party/${getYoutubeDlFileName()}")
 
     val ageOfFile = Date().time - youtubeDlFile.lastModified()
 
@@ -83,10 +94,10 @@ fun downloadYoutubeDlIfNeeded(youtubeDlFileName: String, maxAge: Int) {
         val url: URL
 
         try {
-            url = URL(baseUrl + youtubeDlFileName)
+            url = URL(baseUrl + getYoutubeDlFileName())
             val connection = url.openConnection()
             val `in` = connection.getInputStream()
-            val fos = FileOutputStream(File("third_party/$youtubeDlFileName"))
+            val fos = FileOutputStream(File("third_party/${getYoutubeDlFileName()}"))
 
             val buf = ByteArray(512)
 
@@ -134,7 +145,9 @@ fun createChannelConfigIfNeeded() {
 
 }
 
-private fun loadChannelConfig(channels: ArrayList<Channel>) {
+private fun loadChannelConfig(): ArrayList<Channel> {
+    val channels = ArrayList<Channel>()
+
     try {
         val channelConfigFile = File("config/channels.txt")
         val reader = BufferedReader(FileReader(channelConfigFile))
@@ -151,9 +164,10 @@ private fun loadChannelConfig(channels: ArrayList<Channel>) {
         Logger.error(e)
     }
 
+    return channels
 }
 
-private fun showMenuOptions(options: LinkedHashMap<Int, String>): Int {
+private fun showMenuOptions(options: List<BaseOption>): Int {
     val scanner = Scanner(System.`in`)
 
     val ctx = AT_Context()
@@ -164,11 +178,10 @@ private fun showMenuOptions(options: LinkedHashMap<Int, String>): Int {
     at.addRow("Options:")
     at.addRule()
 
-    for ((key, value) in options) {
-        if (key == -1) {
-            at.addRow(value)
-        } else {
-            at.addRow(key.toString() + ": " + value)
+    options.forEach { it ->
+        when (it) {
+            is OptionSpacer -> at.addRow("")
+            is Option -> at.addRow("${it.inputValue}: ${it.label}")
         }
     }
 
