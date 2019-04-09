@@ -197,7 +197,7 @@ fun downloadChannel(channel: Channel, youtubeDlFile: File) {
     val p: Process
 
     try {
-        println("Starting downloads for \"" + channel.description + "\".")
+        println("Starting downloads for \"" + channel.title + "\".")
         println()
 
         val newParams = ArrayList<String>()
@@ -213,7 +213,14 @@ fun downloadChannel(channel: Channel, youtubeDlFile: File) {
         newParams.add(channel.localPath + "/%(title)s.%(ext)s")
         newParams.add("--ignore-errors")
         newParams.add("--no-overwrites")
+
+        if (getCustomParams() != null) {
+            newParams.add(getCustomParams()!!)
+        }
+
         newParams.add(channel.url)
+
+        println(newParams.reduce { acc, it -> "$acc $it" })
 
         val builder = ProcessBuilder(newParams)
         builder.redirectErrorStream(true)
@@ -253,7 +260,7 @@ private fun startDownloadSingle(config: Config, youtubeDlFile: File) {
     try {
         println()
 
-        downloadChannel(config.channels[channelNumber - 1], youtubeDlFile)
+        downloadChannel(config.channels.get(channelNumber - 1), youtubeDlFile)
     } catch (e: IndexOutOfBoundsException) {
         println("Invalid channel #.")
     }
@@ -267,17 +274,19 @@ private fun listChannels(channels: ArrayList<Channel>) {
     val at = AsciiTable(ctx)
     at.setTextAlignment(TextAlignment.LEFT)
     at.addRule()
-    at.addRow("# | DESCRIPTION", "URL", "LOCAL PATH")
+    at.addRow("# | TITLE", "URL", "LOCAL PATH")
     at.addRule()
 
     if (channels.size == 0) {
         at.addRow(null, null, "no channels yet")
     }
 
+    println(channels[0].title)
+
     var i = 1
 
     for (channel in channels) {
-        at.addRow(i.toString() + " | " + channel.description, channel.url, channel.localPath)
+        at.addRow(i.toString() + " | " + channel.title, channel.url, channel.localPath)
 
         if (i < channels.size) {
             at.addRule()
@@ -298,4 +307,10 @@ fun convertChannelsConfigIfNeeded() {
         val config = Config(loadOldChannelConfig())
         File("config.json").writeText(defaultGson().toJson(config))
     }
+}
+
+fun getCustomParams() : String? {
+    val fileName = "config/custom_params.txt"
+
+    return if (File(fileName).exists()) File(fileName).readText() else null
 }
