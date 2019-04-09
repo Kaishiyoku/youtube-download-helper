@@ -1,7 +1,7 @@
 package com.kaishiyoku.youtubedownloadhelper
 
-import com.google.gson.Gson
 import com.kaishiyoku.youtubedownloadhelper.helper.ConsoleHelper.cls
+import com.kaishiyoku.youtubedownloadhelper.helper.ConsoleHelper.defaultGson
 import com.kaishiyoku.youtubedownloadhelper.helper.ConsoleHelper.isWindows
 import com.kaishiyoku.youtubedownloadhelper.helper.ConsoleHelper.printPressToContinue
 import com.kaishiyoku.youtubedownloadhelper.models.*
@@ -24,7 +24,7 @@ fun getYoutubeDlFile(): File {
     return File("third_party/${getYoutubeDlFileName()}")
 }
 
-fun exit(channels: ArrayList<Channel>, youtubeDlFile: File) {
+fun exit(config: Config, youtubeDlFile: File) {
     status = 0
 }
 
@@ -56,7 +56,7 @@ fun main(args: Array<String>) {
             if (foundOption == null) {
                 println("Invalid option.")
             } else {
-//                foundOption.actionFn(loadChannelConfig(), getYoutubeDlFile())
+                foundOption.actionFn(loadChannelConfig(), getYoutubeDlFile())
             }
 
             println()
@@ -130,6 +130,10 @@ fun createChannelConfigIfNeeded() {
 
 }
 
+private fun loadChannelConfig(): Config {
+    return Config.fromJson(File("config.json").readText())
+}
+
 private fun loadOldChannelConfig(): ArrayList<Channel> {
     val channels = ArrayList<Channel>()
 
@@ -183,8 +187,8 @@ private fun showMenuOptions(options: List<BaseOption>): Int {
     return option
 }
 
-fun startDownload(channels: ArrayList<Channel>, youtubeDlFile: File) {
-    for (channel in channels) {
+fun startDownload(config: Config, youtubeDlFile: File) {
+    for (channel in config.channels) {
         downloadChannel(channel, youtubeDlFile)
     }
 }
@@ -235,8 +239,8 @@ fun downloadChannel(channel: Channel, youtubeDlFile: File) {
 
 }
 
-private fun startDownloadSingle(channels: ArrayList<Channel>, youtubeDlFile: File) {
-    listChannels(channels)
+private fun startDownloadSingle(config: Config, youtubeDlFile: File) {
+    listChannels(config.channels)
 
     val scanner = Scanner(System.`in`)
 
@@ -249,7 +253,7 @@ private fun startDownloadSingle(channels: ArrayList<Channel>, youtubeDlFile: Fil
     try {
         println()
 
-        downloadChannel(channels[channelNumber - 1], youtubeDlFile)
+        downloadChannel(config.channels[channelNumber - 1], youtubeDlFile)
     } catch (e: IndexOutOfBoundsException) {
         println("Invalid channel #.")
     }
@@ -292,6 +296,6 @@ fun convertChannelsConfigIfNeeded() {
         println("Converting old config")
 
         val config = Config(loadOldChannelConfig())
-        File("config.json").writeText(Gson().toJson(config))
+        File("config.json").writeText(defaultGson().toJson(config))
     }
 }

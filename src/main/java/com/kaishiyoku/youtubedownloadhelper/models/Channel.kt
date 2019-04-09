@@ -1,6 +1,7 @@
 package com.kaishiyoku.youtubedownloadhelper.models
 
 import com.google.gson.Gson
+import com.kaishiyoku.youtubedownloadhelper.helper.ConsoleHelper.defaultGson
 
 class Channel(description: String, url: String, localPath: String) {
     var description: String = description
@@ -18,7 +19,7 @@ class Channel(description: String, url: String, localPath: String) {
         }
 
         fun fromJson(json: String) : Channel {
-            return Gson().fromJson(json, Channel::class.java)
+            return defaultGson().fromJson(json, Channel::class.java)
         }
     }
 }

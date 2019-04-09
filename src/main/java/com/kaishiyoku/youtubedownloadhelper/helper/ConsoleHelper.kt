@@ -1,5 +1,7 @@
 package com.kaishiyoku.youtubedownloadhelper.helper
 
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import org.pmw.tinylog.Logger
 import java.io.IOException
 
@@ -24,6 +26,9 @@ object ConsoleHelper {
         } catch (e: IOException) {
             Logger.error(e)
         }
+    }
 
+    fun defaultGson(): Gson {
+        return GsonBuilder().setPrettyPrinting().create()
     }
 }

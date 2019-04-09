@@ -1,7 +1,7 @@
 package com.kaishiyoku.youtubedownloadhelper.models
 
-import com.google.gson.Gson
-import java.util.ArrayList
+import com.kaishiyoku.youtubedownloadhelper.helper.ConsoleHelper.defaultGson
+import java.util.*
 
 class Config(channels: ArrayList<Channel>) {
     var channels: ArrayList<Channel> = channels
@@ -9,7 +9,7 @@ class Config(channels: ArrayList<Channel>) {
 
     companion object {
         fun fromJson(json: String): Config {
-            return Gson().fromJson(json, Config::class.java)
+            return defaultGson().fromJson(json, Config::class.java)
         }
     }
 }
