@@ -1,12 +1,10 @@
 package com.kaishiyoku.youtubedownloadhelper
 
+import com.google.gson.Gson
 import com.kaishiyoku.youtubedownloadhelper.helper.ConsoleHelper.cls
 import com.kaishiyoku.youtubedownloadhelper.helper.ConsoleHelper.isWindows
 import com.kaishiyoku.youtubedownloadhelper.helper.ConsoleHelper.printPressToContinue
-import com.kaishiyoku.youtubedownloadhelper.models.BaseOption
-import com.kaishiyoku.youtubedownloadhelper.models.Channel
-import com.kaishiyoku.youtubedownloadhelper.models.Option
-import com.kaishiyoku.youtubedownloadhelper.models.OptionSpacer
+import com.kaishiyoku.youtubedownloadhelper.models.*
 import de.vandermeer.asciitable.AT_Context
 import de.vandermeer.asciitable.AsciiTable
 import de.vandermeer.asciithemes.TA_GridThemes
@@ -31,6 +29,8 @@ fun exit(channels: ArrayList<Channel>, youtubeDlFile: File) {
 }
 
 fun main(args: Array<String>) {
+    convertChannelsConfigIfNeeded()
+
     val maxAgeOfYoutubeDlFileInDays = 30
 
     val options = listOf(
@@ -56,7 +56,7 @@ fun main(args: Array<String>) {
             if (foundOption == null) {
                 println("Invalid option.")
             } else {
-                foundOption.actionFn(loadChannelConfig(), getYoutubeDlFile())
+//                foundOption.actionFn(loadChannelConfig(), getYoutubeDlFile())
             }
 
             println()
@@ -118,18 +118,11 @@ fun downloadYoutubeDlIfNeeded(maxAge: Int) {
 }
 
 fun createChannelConfigIfNeeded() {
-    val dir = File("config")
-    dir.mkdirs()
-
     try {
-        val channelConfigFile = File("config/channels.txt")
+        val configFile = File("config.json")
 
-        if (!channelConfigFile.exists()) {
-            val writer = PrintWriter(channelConfigFile, "UTF-8")
-            writer.println("# Enter here the YouTube channels you want to download in the following format, one channel per row:")
-            writer.println("# The description field is for visibility only and will not be used by the downloader.")
-            writer.println("# <DESCRIPTION>;<URL>;<LOCAL_PATH>")
-            writer.close()
+        if (!configFile.exists()) {
+            File("config/default_config.json").copyTo(File("config.json"))
         }
     } catch (e: IOException) {
         Logger.error(e)
@@ -137,7 +130,7 @@ fun createChannelConfigIfNeeded() {
 
 }
 
-private fun loadChannelConfig(): ArrayList<Channel> {
+private fun loadOldChannelConfig(): ArrayList<Channel> {
     val channels = ArrayList<Channel>()
 
     try {
@@ -292,4 +285,13 @@ private fun listChannels(channels: ArrayList<Channel>) {
     at.addRule()
 
     println(at.render())
+}
+
+fun convertChannelsConfigIfNeeded() {
+    if (!File("config.json").exists() && File("config/channels.txt").exists()) {
+        println("Converting old config")
+
+        val config = Config(loadOldChannelConfig())
+        File("config.json").writeText(Gson().toJson(config))
+    }
 }
