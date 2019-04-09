@@ -31,7 +31,7 @@ fun exit(config: Config, youtubeDlFile: File) {
 fun main(args: Array<String>) {
     convertChannelsConfigIfNeeded()
 
-    val maxAgeOfYoutubeDlFileInDays = 30
+    val maxAgeOfYoutubeDlFileInDays = 30L
 
     val options = listOf(
             Option(1, "Start download", ::startDownload),
@@ -70,7 +70,7 @@ fun main(args: Array<String>) {
     }
 }
 
-fun downloadYoutubeDlIfNeeded(maxAge: Int) {
+fun downloadYoutubeDlIfNeeded(maxAge: Long) {
     val dir = File("third_party")
     dir.mkdirs()
 
@@ -79,6 +79,9 @@ fun downloadYoutubeDlIfNeeded(maxAge: Int) {
     // check if file already exists
     val youtubeDlFile = getYoutubeDlFile()
     val ageOfFile = Date().time - youtubeDlFile.lastModified()
+
+    println(ageOfFile)
+    println(maxAge * 24 * 60 * 60 * 1000)
 
     if (!youtubeDlFile.exists() || ageOfFile > maxAge * 24 * 60 * 60 * 1000) {
         println("Downloading youtube-dl tool from https://rg3.github.io/youtube-dl/ ...")
