@@ -80,9 +80,6 @@ fun downloadYoutubeDlIfNeeded(maxAge: Long) {
     val youtubeDlFile = getYoutubeDlFile()
     val ageOfFile = Date().time - youtubeDlFile.lastModified()
 
-    println(ageOfFile)
-    println(maxAge * 24 * 60 * 60 * 1000)
-
     if (!youtubeDlFile.exists() || ageOfFile > maxAge * 24 * 60 * 60 * 1000) {
         println("Downloading youtube-dl tool from https://rg3.github.io/youtube-dl/ ...")
 
