@@ -220,8 +220,6 @@ fun downloadChannel(channel: Channel, youtubeDlFile: File) {
 
         newParams.add(channel.url)
 
-        println(newParams.reduce { acc, it -> "$acc $it" })
-
         val builder = ProcessBuilder(newParams)
         builder.redirectErrorStream(true)
         p = builder.start()
